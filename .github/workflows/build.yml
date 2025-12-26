@@ -1,0 +1,38 @@
+name: Build Android
+on: workflow_dispatch
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.x'
+      
+      - name: Install dependencies
+        run: |
+          pip install flet==0.23.2
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          
+      - name: Build APK
+        run: flet build apk --verbose
+        
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: android_app
+          path: build/apk/*.apk
